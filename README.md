@@ -34,31 +34,105 @@ The following is the pin out for the Raspberry Pi Pico W
 
 The most important documents of an embedded system are, among others, datasheets, user guides, technical reference manuals, application notes, errata or schematics. Therefore, every embedded system comes with many documentation files. All the necessary files for this lab and subsequent labs can be found on the Raspberry Foundation site and supplementary documents will be provided on the course xsite website. It is essential to have access to all parts of the documentation to use the functionality of an embedded system to its fullest extent. Details of the hardware can be found [here](https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html).
 
-## **SETTING UP PICO SDK**
 
-There are various [methods](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf) (see chapters 2 and 9) to setup the development environment for the pico in C using the Pico SDK, depending on what OS you are using on your PC/laptop. However, if you are using Windows OS, the easiest way is to download and install [this](https://github.com/raspberrypi/pico-setup-windows/releases/latest/download/pico-setup-windows-x64-standalone.exe) tool.
+## **GETTING STARTED WITH PICO W**
 
-Visual Studio Code will ask if you want to configure the pico-examples project when it is first opened; click *Yes* on that prompt to proceed. You will then be prompted to select a kit -- select the *Pico ARM GCC - Pico SDK Toolchain with GCC arm-none-eabi* entry. 
+This section provides a step-by-step guide to setting up the development environment for Raspberry Pi Pico W, updating dependencies, configuring the Pico SDK, compiling, and running projects. Instructions are tailored for Windows, macOS, and Linux.
 
-> [NOTE]
-> Please restart your PC/laptop (multiple times) after installing the SDK. This resolved many first-time compile error issues that were brought up to me. :)
+### Updating Dependencies
 
-## **BUILDING AN EXAMPLE**
+#### Linux
+Run the following commands to install required dependencies:
 
-Ensure you selected the right application when starting the Visual Studio Code, as two variations might be installed on your laptop. The icon should look as follows:
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install cmake gcc-arm-none-eabi build-essential libnewlib-arm-none-eabi git -y
+```
 
-![Screenshot of Pico - Visual Studio Code](/img/pico_vsc.png)
+#### macOS
+Install the necessary tools using [Homebrew](https://brew.sh/):
 
-Once "Pico - Visual Studio Code" (VSCode) is started, click the [CMake](/img/cmake.png) icon and select the sample code you want to work on. In this example, we will use the [Hello World](https://github.com/raspberrypi/pico-examples/tree/master/hello_world/usb) example. The following [video](https://www.youtube.com/watch?v=NPwoflT_bB0) demonstrates how you get started with VSCode. Note that we are using the hello_usb version of the code. This allows the USB connection between the pico and the PC/laptop to become a virtual UART connection, which can be used together with printf (for debugging purposes).
+```bash
+brew update
+brew install cmake arm-none-eabi-gcc git
+```
 
-Now, try to compile and run the [blink](https://github.com/raspberrypi/pico-examples/tree/master/blink) example.
+#### Windows
+1. Install [CMake](https://cmake.org/), [Git](https://git-scm.com/), and [Build Tools for Visual Studio](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+2. Install `arm-none-eabi-gcc` using [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads).
+3. Add the directories of these tools to your system's PATH variable:
+   - **Control Panel > System > Advanced system settings > Environment Variables**.
 
-If you are using the Pico W boards, you must make a small amendment to the CMakeLists.txt file. Include "set(PICO_BOARD pico_w)" to line #11. The following [video](https://www.youtube.com/watch?v=sTNtLkoHN58) demonstrates how to make the changes and build a [blink](https://github.com/raspberrypi/pico-examples/tree/master/pico_w/wifi/blink) example for the Pico W. 
+### Setting Up the Pico SDK
 
-![Screenshot of Pico - Visual Studio Code](/img/picow_support.png)
+#### All Platforms
+1. **Clone the Pico SDK Repository**:
+   ```bash
+   git clone https://github.com/raspberrypi/pico-sdk.git
+   cd pico-sdk
+   git submodule update --init
+   ```
 
-> [NOTE]
-> The normal blink example will only work on a standard Pico (without wireless). This is because the Pico W LED is connected to the WiFi SoC and not directly to the RP2040.
+2. **Set Up the Environment**:
+   - **Linux/macOS**:
+     Add the following line to your shell configuration file (`~/.bashrc` or `~/.zshrc`):
+
+     ```bash
+     export PICO_SDK_PATH=/path/to/pico-sdk
+     ```
+
+     Replace `/path/to/pico-sdk` with the actual path where the Pico SDK is cloned.
+
+     Reload the shell configuration:
+
+     ```bash
+     source ~/.bashrc
+     ```
+
+   - **Windows**:
+     Set the `PICO_SDK_PATH` as a system environment variable:
+     1. Go to **Control Panel > System > Advanced system settings > Environment Variables**.
+     2. Under "System variables," click **New**, and set:
+        - **Variable name**: `PICO_SDK_PATH`
+        - **Variable value**: `C:\path\to\pico-sdk`
+
+     Replace `C:\path\to\pico-sdk` with the actual path to the Pico SDK directory.
+
+### Compiling the Project via Terminal
+
+1. **Navigate to the Project Directory**:
+   ```bash
+   cd INF2004_LAB1_reworked
+   ```
+
+2. **Create a Build Directory**:
+   ```bash
+   mkdir build
+   cd build
+   ```
+
+3. **Generate Build Files with CMake**:
+   - **Linux/macOS**:
+     ```bash
+     cmake ..
+     ```
+   - **Windows**:
+     Ensure you're using the **Developer Command Prompt for Visual Studio** and run:
+     ```cmd
+     cmake -G "NMake Makefiles" ..
+     ```
+
+4. **Compile the Project**:
+   - **Linux/macOS**:
+     ```bash
+     make
+     ```
+   - **Windows**:
+     ```cmd
+     nmake
+     ```
+
+   The compiled `.uf2` file will be located in the `build` directory.
 
 ## **DOWNLOADING FIRMWARE INTO THE PICO**
 
